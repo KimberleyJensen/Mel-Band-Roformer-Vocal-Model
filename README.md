@@ -2,7 +2,7 @@ A [Mel-Band-Roformer Vocal model](https://arxiv.org/abs/2310.01809). This model 
 
 # How to use
 
-Download the model - https://drive.google.com/file/d/19vVn6Yn_ppiELOvMOR5m-CmNT_FCiDs3/view?usp=sharing
+Download the model - https://huggingface.co/KimberleyJSN/melbandroformer/blob/main/MelBandRoformer.ckpt
 
 Install requirements - `pip install -r requirements.txt`
 
@@ -12,7 +12,7 @@ The model will perform inference on every .wav file inside the --input_folder an
 
 [num_overlap](https://github.com/KimberleyJensen/Mel-Band-Roformer-Vocal-Model/blob/41d04ae1c8ea89261b488e90953192efe650fa4f/configs/config_vocals_mel_band_roformer.yaml#L38) - Increasing this value can improve the quality of the outputs due to helping with artifacts created when putting the chunks back together. This will make longer inference times longer (you don't need to go higher than 8)
 
-[chunk_size](https://github.com/KimberleyJensen/Mel-Band-Roformer-Vocal-Model/blob/41d04ae1c8ea89261b488e90953192efe650fa4f/configs/config_vocals_mel_band_roformer.yaml#L39) - The length on audio input into the model (default is 352800 which is 8 seconds, 352800 was also used to train the model)
+[chunk_size](https://github.com/KimberleyJensen/Mel-Band-Roformer-Vocal-Model/blob/41d04ae1c8ea89261b488e90953192efe650fa4f/configs/config_vocals_mel_band_roformer.yaml#L39) - The length of audio input into the model (default is 352800 which is 8 seconds, 352800 was also used to train the model)
 
 # Thanks to
 
