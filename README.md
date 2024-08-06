@@ -20,7 +20,7 @@ The model will perform inference on every .wav file inside the --input_folder an
 
 [ZFTurbo](https://github.com/ZFTurbo) for releasing [training code](https://github.com/ZFTurbo/Music-Source-Separation-Training) which was used to train the model
 
-Ju-Chiang Wang, Wei-Tsung Lu, Minz Won (ByteDance AI Labs) - The authors of the Mel-Band RoFormer
+Ju-Chiang Wang, Wei-Tsung Lu, Minz Won (ByteDance AI Labs) - The authors of the Mel-Band RoFormer paper
 
 # How to help
 
