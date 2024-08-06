@@ -26,6 +26,10 @@ Ju-Chiang Wang, Wei-Tsung Lu, Minz Won (ByteDance AI Labs) - The authors of the 
 
 If you want to contribute GPU access for me to train a bigger model (this model did not overfit) please contact me at KimberleyJensenOx1@gmail.com. A 48GB GPU will be required due to high VRAM usage. You can also contribute by adding to my dataset which is used to train the model. 
 
+# Google colab
+
+https://colab.research.google.com/drive/1tyP3ZgcD443d4Q3ly7LcS3toJroLO5o1?usp=sharing
+
 
 
 
