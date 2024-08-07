@@ -22,7 +22,7 @@ The model will perform inference on every .wav file inside the --input_folder an
 
 Ju-Chiang Wang, Wei-Tsung Lu, Minz Won (ByteDance AI Labs) - The authors of the Mel-Band RoFormer paper
 
-[aufr33](https://github.com/aufr33) + [Anjok](https://github.com/Anjok07) for helping contribute to the dataset
+[aufr33](https://github.com/aufr33) + [Anjok](https://github.com/Anjok07) + [bascurtiz](https://github.com/bascurtiz) for helping contribute to the dataset
 
 # How to help
 
