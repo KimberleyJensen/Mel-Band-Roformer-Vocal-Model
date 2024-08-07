@@ -10,17 +10,19 @@ Inference - `python inference.py --config_path configs/config_vocals_mel_band_ro
 
 The model will perform inference on every .wav file inside the --input_folder and save them to the --store_dir folder.
 
-[num_overlap](https://github.com/KimberleyJensen/Mel-Band-Roformer-Vocal-Model/blob/41d04ae1c8ea89261b488e90953192efe650fa4f/configs/config_vocals_mel_band_roformer.yaml#L38) - Increasing this value can improve the quality of the outputs due to helping with artifacts created when putting the chunks back together. This will make longer inference times longer (you don't need to go higher than 8)
+[num_overlap](https://github.com/KimberleyJensen/Mel-Band-Roformer-Vocal-Model/blob/41d04ae1c8ea89261b488e90953192efe650fa4f/configs/config_vocals_mel_band_roformer.yaml#L38) - Increasing this value can improve the quality of the outputs due to helping with artifacts created when putting the chunks back together. This will make inference times longer (you don't need to go higher than 8)
 
 [chunk_size](https://github.com/KimberleyJensen/Mel-Band-Roformer-Vocal-Model/blob/41d04ae1c8ea89261b488e90953192efe650fa4f/configs/config_vocals_mel_band_roformer.yaml#L39) - The length of audio input into the model (default is 352800 which is 8 seconds, 352800 was also used to train the model)
 
 # Thanks to
 
-[lucidrains](https://github.com/lucidrains) For [implementing the paper](https://github.com/lucidrains/BS-RoFormer) (and all his open source work)
+[lucidrains](https://github.com/lucidrains) for [implementing the paper](https://github.com/lucidrains/BS-RoFormer) (and all his open source work)
 
 [ZFTurbo](https://github.com/ZFTurbo) for releasing [training code](https://github.com/ZFTurbo/Music-Source-Separation-Training) which was used to train the model
 
 Ju-Chiang Wang, Wei-Tsung Lu, Minz Won (ByteDance AI Labs) - The authors of the Mel-Band RoFormer paper
+
+[aufr33](https://github.com/aufr33) + [Anjok](https://github.com/Anjok07) for helping contribute to the dataset
 
 # How to help
 
