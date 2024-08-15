@@ -8,7 +8,7 @@ Install requirements - `pip install -r requirements.txt`
 
 Inference - `python inference.py --config_path configs/config_vocals_mel_band_roformer.yaml --model_path melbandroformer.ckpt --input_folder songsfolder --store_dir outputsfolder`
 
-The model will perform inference on every .wav file inside the --input_folder and save them to the --store_dir folder.
+The model will output a vocals and instrumental file for every .wav file inside the --input_folder and save them to the --store_dir folder.
 
 [num_overlap](https://github.com/KimberleyJensen/Mel-Band-Roformer-Vocal-Model/blob/41d04ae1c8ea89261b488e90953192efe650fa4f/configs/config_vocals_mel_band_roformer.yaml#L38) - Increasing this value can improve the quality of the outputs due to helping with artifacts created when putting the chunks back together. This will make inference times longer (you don't need to go higher than 8)
 
@@ -26,7 +26,7 @@ Ju-Chiang Wang, Wei-Tsung Lu, Minz Won (ByteDance AI Labs) - The authors of the 
 
 # How to help
 
-If you want to contribute GPU access for me to train a bigger model (this model did not overfit) please contact me at KimberleyJensenOx1@gmail.com. A 48GB GPU will be required due to high VRAM usage. You can also contribute by adding to my dataset which is used to train the model. 
+If you would like to contribute GPU access for me to train better models please contact me at KimberleyJensenOx1@gmail.com. A 40GB GPU will be required due to high VRAM usage. You can also contribute by adding to my dataset which is used to train the model. 
 
 # Google colab
 
