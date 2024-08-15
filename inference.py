@@ -36,8 +36,15 @@ def run_folder(model, args, config, device, verbose=False):
         mix, sr = sf.read(path)
         mixture = torch.tensor(mix.T, dtype=torch.float32)
         res = demix_track(config, model, mixture, device)
+
         for instr in instruments:
-            sf.write("{}/{}_{}.wav".format(args.store_dir, os.path.basename(path)[:-4], instr), res[instr].T, sr, subtype='FLOAT')
+            vocals_path = "{}/{}_{}.wav".format(args.store_dir, os.path.basename(path)[:-4], instr)
+            sf.write(vocals_path, res[instr].T, sr, subtype='FLOAT')
+        
+        vocals = res[instruments[0]].T
+        instrumental = mix - vocals
+        instrumental_path = "{}/{}_instrumental.wav".format(args.store_dir, os.path.basename(path)[:-4])
+        sf.write(instrumental_path, instrumental, sr, subtype='FLOAT')
 
     time.sleep(1)
     print("Elapsed time: {:.2f} sec".format(time.time() - start_time))
