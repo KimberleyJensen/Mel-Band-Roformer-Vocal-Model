@@ -20,7 +20,8 @@ def run_folder(model, args, config, device, verbose=False):
     start_time = time.time()
     model.eval()
     all_mixtures_path = glob.glob(args.input_folder + '/*.wav')
-    print('Total tracks found: {}'.format(len(all_mixtures_path)))
+    total_tracks = len(all_mixtures_path)
+    print('Total tracks found: {}'.format(total_tracks))
 
     instruments = config.training.instruments
     if config.training.target_instrument is not None:
@@ -32,15 +33,28 @@ def run_folder(model, args, config, device, verbose=False):
     if not verbose:
         all_mixtures_path = tqdm(all_mixtures_path)
 
-    for path in all_mixtures_path:
+    first_chunk_time = None
+
+    for track_number, path in enumerate(all_mixtures_path, 1):
+        print(f"\nProcessing track {track_number}/{total_tracks}: {os.path.basename(path)}")
+
         mix, sr = sf.read(path)
         mixture = torch.tensor(mix.T, dtype=torch.float32)
-        res = demix_track(config, model, mixture, device)
+
+        if first_chunk_time is not None:
+            total_length = mixture.shape[1]
+            num_chunks = (total_length + config.inference.chunk_size // config.inference.num_overlap - 1) // (config.inference.chunk_size // config.inference.num_overlap)
+            estimated_total_time = first_chunk_time * num_chunks
+            print(f"Estimated total processing time for this track: {estimated_total_time:.2f} seconds")
+            sys.stdout.write(f"Estimated time remaining: {estimated_total_time:.2f} seconds\r")
+            sys.stdout.flush()
+
+        res, first_chunk_time = demix_track(config, model, mixture, device, first_chunk_time)
 
         for instr in instruments:
             vocals_path = "{}/{}_{}.wav".format(args.store_dir, os.path.basename(path)[:-4], instr)
             sf.write(vocals_path, res[instr].T, sr, subtype='FLOAT')
-        
+
         vocals = res[instruments[0]].T
         instrumental = mix - vocals
         instrumental_path = "{}/{}_instrumental.wav".format(args.store_dir, os.path.basename(path)[:-4])
@@ -85,7 +99,7 @@ def proc_folder(args):
             model = nn.DataParallel(model, device_ids=device_ids).to(device)
     else:
         device = 'cpu'
-        print('CUDA is not avilable. Run inference on CPU. It will be very slow...')
+        print('CUDA is not available. Run inference on CPU. It will be very slow...')
         model = model.to(device)
 
     run_folder(model, args, config, device, verbose=False)
