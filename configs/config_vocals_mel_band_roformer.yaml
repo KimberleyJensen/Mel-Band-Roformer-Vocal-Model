@@ -35,5 +35,5 @@ training:
   target_instrument: vocals
 
 inference:
-  num_overlap: 1
+  num_overlap: 2
   chunk_size: 352800
