@@ -18,10 +18,25 @@ def get_model_from_config(model_type, config):
     return model
 
 
+def get_windowing_array(window_size, fade_size, device):
+    fadein = torch.linspace(0, 1, fade_size)
+    fadeout = torch.linspace(1, 0, fade_size)
+    window = torch.ones(window_size)
+    window[-fade_size:] *= fadeout
+    window[:fade_size] *= fadein
+    return window.to(device)
+
 def demix_track(config, model, mix, device, first_chunk_time=None):
     C = config.inference.chunk_size
     N = config.inference.num_overlap
     step = C // N
+    fade_size = C // 10
+    border = C - step
+
+    if mix.shape[1] > 2 * border and border > 0:
+        mix = nn.functional.pad(mix, (border, border), mode='reflect')
+
+    windowing_array = get_windowing_array(C, fade_size, device)
 
     with torch.cuda.amp.autocast():
         with torch.no_grad():
@@ -49,14 +64,24 @@ def demix_track(config, model, mix, device, first_chunk_time=None):
                 part = mix[:, i:i + C]
                 length = part.shape[-1]
                 if length < C:
-                    part = nn.functional.pad(input=part, pad=(0, C - length, 0, 0), mode='constant', value=0)
+                    if length > C // 2 + 1:
+                        part = nn.functional.pad(input=part, pad=(0, C - length), mode='reflect')
+                    else:
+                        part = nn.functional.pad(input=part, pad=(0, C - length, 0, 0), mode='constant', value=0)
 
                 if first_chunk and i == 0:
                     chunk_start_time = time.time()
 
                 x = model(part.unsqueeze(0))[0]
-                result[..., i:i+length] += x[..., :length]
-                counter[..., i:i+length] += 1.
+
+                window = windowing_array.clone()
+                if i == 0:
+                    window[:fade_size] = 1
+                elif i + C >= total_length:
+                    window[-fade_size:] = 1
+
+                result[..., i:i+length] += x[..., :length] * window[..., :length]
+                counter[..., i:i+length] += window[..., :length]
                 i += step
 
                 if first_chunk and i == step:
@@ -76,6 +101,9 @@ def demix_track(config, model, mix, device, first_chunk_time=None):
             estimated_sources = result / counter
             estimated_sources = estimated_sources.cpu().numpy()
             np.nan_to_num(estimated_sources, copy=False, nan=0.0)
+
+            if mix.shape[1] > 2 * border and border > 0:
+                estimated_sources = estimated_sources[..., border:-border]
 
     if config.training.target_instrument is None:
         return {k: v for k, v in zip(config.training.instruments, estimated_sources)}, first_chunk_time
