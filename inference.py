@@ -1,5 +1,6 @@
 import argparse
 import yaml
+import numpy as np
 import time
 from ml_collections import ConfigDict
 from omegaconf import OmegaConf
@@ -39,6 +40,11 @@ def run_folder(model, args, config, device, verbose=False):
         print(f"\nProcessing track {track_number}/{total_tracks}: {os.path.basename(path)}")
 
         mix, sr = sf.read(path)
+        original_mono = False
+        if len(mix.shape) == 1:
+            original_mono = True
+            mix = np.stack([mix, mix], axis=-1)
+
         mixture = torch.tensor(mix.T, dtype=torch.float32)
 
         if first_chunk_time is not None:
@@ -52,11 +58,20 @@ def run_folder(model, args, config, device, verbose=False):
         res, first_chunk_time = demix_track(config, model, mixture, device, first_chunk_time)
 
         for instr in instruments:
-            vocals_path = "{}/{}_{}.wav".format(args.store_dir, os.path.basename(path)[:-4], instr)
-            sf.write(vocals_path, res[instr].T, sr, subtype='FLOAT')
+            vocals_output = res[instr].T
+            if original_mono:
+                vocals_output = vocals_output[:, 0]
 
-        vocals = res[instruments[0]].T
-        instrumental = mix - vocals
+            vocals_path = "{}/{}_{}.wav".format(args.store_dir, os.path.basename(path)[:-4], instr)
+            sf.write(vocals_path, vocals_output, sr, subtype='FLOAT')
+
+        vocals_output = res[instruments[0]].T
+        if original_mono:
+            vocals_output = vocals_output[:, 0]
+
+        original_mix, _ = sf.read(path)
+        instrumental = original_mix - vocals_output
+
         instrumental_path = "{}/{}_instrumental.wav".format(args.store_dir, os.path.basename(path)[:-4])
         sf.write(instrumental_path, instrumental, sr, subtype='FLOAT')
 
