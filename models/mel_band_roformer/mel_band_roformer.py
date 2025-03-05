@@ -491,8 +491,17 @@ class MelBandRoformer(Module):
 
         scatter_indices = repeat(self.freq_indices, 'f -> b n f t', b=batch, n=num_stems, t=stft_repr.shape[-1])
 
-        stft_repr_expanded_stems = repeat(stft_repr, 'b 1 ... -> b n ...', n=num_stems)
-        masks_summed = torch.zeros_like(stft_repr_expanded_stems).scatter_add_(2, scatter_indices, masks)
+        stft_repr_expanded_stems = repeat(stft_repr, 'b 1 ... -> b n ...', n=num_stems)       
+        masks_real = masks.real
+        masks_imag = masks.imag
+
+        stft_repr_real = stft_repr_expanded_stems.real
+        stft_repr_imag = stft_repr_expanded_stems.imag
+
+        masks_summed_real = torch.zeros_like(stft_repr_real).scatter_add_(2, scatter_indices, masks_real)
+        masks_summed_imag = torch.zeros_like(stft_repr_imag).scatter_add_(2, scatter_indices, masks_imag)
+
+        masks_summed = torch.complex(masks_summed_real, masks_summed_imag)
 
         denom = repeat(self.num_bands_per_freq, 'f -> (f r) 1', r=channels)
 

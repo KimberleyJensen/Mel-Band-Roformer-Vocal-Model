@@ -36,6 +36,10 @@ def run_folder(model, args, config, device, verbose=False):
 
     first_chunk_time = None
 
+    num_overlap = config.inference.num_overlap
+    if args.num_overlap is not None:
+        num_overlap = args.num_overlap
+
     for track_number, path in enumerate(all_mixtures_path, 1):
         print(f"\nProcessing track {track_number}/{total_tracks}: {os.path.basename(path)}")
 
@@ -49,13 +53,14 @@ def run_folder(model, args, config, device, verbose=False):
 
         if first_chunk_time is not None:
             total_length = mixture.shape[1]
-            num_chunks = (total_length + config.inference.chunk_size // config.inference.num_overlap - 1) // (config.inference.chunk_size // config.inference.num_overlap)
+
+            num_chunks = (total_length + config.inference.chunk_size // num_overlap - 1) // (config.inference.chunk_size // num_overlap)
             estimated_total_time = first_chunk_time * num_chunks
             print(f"Estimated total processing time for this track: {estimated_total_time:.2f} seconds")
             sys.stdout.write(f"Estimated time remaining: {estimated_total_time:.2f} seconds\r")
             sys.stdout.flush()
 
-        res, first_chunk_time = demix_track(config, model, mixture, device, first_chunk_time)
+        res, first_chunk_time = demix_track(config, model, mixture, device, num_overlap, first_chunk_time)
 
         for instr in instruments:
             vocals_output = res[instr].T
@@ -87,6 +92,7 @@ def proc_folder(args):
     parser.add_argument("--input_folder", type=str, help="folder with songs to process")
     parser.add_argument("--store_dir", default="", type=str, help="path to store model outputs")
     parser.add_argument("--device_ids", nargs='+', type=int, default=0, help='list of gpu ids')
+    parser.add_argument("--num_overlap", type=int, default=None, help='Number of overlapping chunks')
     if args is None:
         args = parser.parse_args()
     else:
@@ -112,6 +118,10 @@ def proc_folder(args):
         else:
             device = torch.device(f'cuda:{device_ids[0]}')
             model = nn.DataParallel(model, device_ids=device_ids).to(device)
+    elif torch.mps.is_available():
+        print('Using MPS')
+        device = 'mps'
+        model = nn.DataParallel(model).to(device)
     else:
         device = 'cpu'
         print('CUDA is not available. Run inference on CPU. It will be very slow...')
