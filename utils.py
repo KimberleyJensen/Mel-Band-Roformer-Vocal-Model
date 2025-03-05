@@ -26,9 +26,9 @@ def get_windowing_array(window_size, fade_size, device):
     window[:fade_size] *= fadein
     return window.to(device)
 
-def demix_track(config, model, mix, device, first_chunk_time=None):
+def demix_track(config, model, mix, device, num_overlap, first_chunk_time=None):
     C = config.inference.chunk_size
-    N = config.inference.num_overlap
+    N = num_overlap
     step = C // N
     fade_size = C // 10
     border = C - step
